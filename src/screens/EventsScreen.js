@@ -40,9 +40,9 @@ const EventsScreen = ({navigation}) => {
     }
   };
 
-  // React.useEffect(() => {
-  //   getEventList();
-  // }, []);
+  React.useEffect(() => {
+    getEventList();
+  }, []);
 
   console.log(events.length);
   return loading ? (

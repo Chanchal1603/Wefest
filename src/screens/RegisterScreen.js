@@ -25,6 +25,8 @@ import {API_BASE_URL} from '../constants/ApiUrl';
 import {setAuthState} from '../redux/actions/authActions';
 import Loader from '../components/Loader';
 import {checkEmptyField, alert} from '../utils';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -78,6 +80,7 @@ const RegisterScreen = ({navigation}) => {
     lastName: '',
     password: '',
     email: '',
+
   });
 
   const handleInputChange = (key, value) => {
@@ -87,60 +90,55 @@ const RegisterScreen = ({navigation}) => {
     });
   };
 
-  // const uploadImage = async () => {
-  //   const data = new FormData();
 
-  //   data.append('sendimage', imageFile.fileData.uri);
-  //   try {
-  //     let res = await fetch('https://wefest.000webhostapp.com/galleryadmin.php', {
-  //       method: 'POST',
-  //       body: data,
-  //       headers: {
-  //         'Content-Type': 'multipart/form-data; ',
-  //       },
-  //     });
-  //     let responseJson = await res.text();
-  //     console.log(responseJson)
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
-  // };
+  const createFormData =  () => {
+
+    const data = new FormData();
+
+    data.append('sendimage', {
+      uri: imageFile.fileData.uri,
+      name: imageFile.fileData.fileName,
+      type: imageFile.fileData.type,
+    });
+
+    Object.keys(registerForm).forEach((key) => {
+      data.append(key, registerForm[key]);
+    });
+    data.append('Batch_Number', value);
+
+    return data;
+   
+  };
 
   const onRegister = async () => {
-    // if(checkEmptyField(registerForm)){
-    //   alert('Warning', 'Fields cannot be empty');
-    //   return;
-    // }
-    // setLoading(true);
-    // try {
-    //   let response = await fetch(`${API_BASE_URL}/register.php`, {
-    //     method: 'POST',
-    //     headers: {
-    //       Accept: 'application/json',
-    //       'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify({
-    //       sendimage: imageFile.fileUri,
-    //       firstName: 'rohant',
-    //       lastName: 'villarosa',
-    //       password: 'rohant@123',
-    //       email: 'rohant@gmail.com',
-    //       Batch_Number: '3',
-    //     }),
-    //   });
-    //   let result = await response.json();
-    // console.log(result);
-    // if (result[0].success) {
-    //   onRegisterSuccess();
-    // } else {
-    //   setLoading(false);
-    //   alert("Error","Something went wrong");
-    // }
-    // } catch (error) {
-    //   console.error(error);
-    //   alert("Error","Something went wrong");
-    //   setLoading(false);
-    // }
+    
+    console.log(registerForm);
+    if(checkEmptyField(registerForm) || imageFile === null || value === null ){
+      alert('Warning', 'Fields cannot be empty');
+      return;
+    }
+    setLoading(true);
+    try {
+      let response = await fetch(`${API_BASE_URL}/register.php`, {
+        method: 'POST',
+        body: createFormData(),
+        headers: {
+          'Content-Type': 'multipart/form-data; ',
+        },
+      });
+      let result = await response.json();
+    console.log(result);
+    if (result[0].successful) {
+      onRegisterSuccess();
+    } else {
+      setLoading(false);
+      alert("Error","Something went wrong");
+    }
+    } catch (error) {
+      console.error(error);
+      alert("Error","Something went wrong");
+      setLoading(false);
+    }
   };
 
   const onRegisterSuccess = async () => {
@@ -148,15 +146,21 @@ const RegisterScreen = ({navigation}) => {
       'authState',
       JSON.stringify({
         isLoggedIn: true,
-        user: {},
-        isAdmin: true,
+        user: {
+          email:registerForm.email,
+          password:registerForm.password
+        },
+        isAdmin: false,
       }),
     );
 
     dispatch(
       setAuthState({
-        isAdmin: true,
-        user: loginForm,
+        isAdmin: false,
+        user: {
+          email:registerForm.email,
+          password:registerForm.password
+        },
       }),
     );
 
@@ -198,25 +202,25 @@ const RegisterScreen = ({navigation}) => {
             labelText="First Name"
             name="firstName"
             value={registerForm.firstName}
-            onChangeText={handleInputChange}
+            onChangeText={(value) => handleInputChange("firstName",value)}
           />
           <FormInput
             labelText="Last Name"
             name="lastName"
             value={registerForm.lastName}
-            onChangeText={handleInputChange}
+            onChangeText={(value) => handleInputChange("lastName",value)}
           />
           <FormInput
             labelText="Password"
             name="password"
             value={registerForm.password}
-            onChangeText={handleInputChange}
+            onChangeText={(value) => handleInputChange("password",value)}
           />
           <FormInput
             labelText="Email Address"
             name="email"
             value={registerForm.email}
-            onChangeText={handleInputChange}
+            onChangeText={(value) => handleInputChange("email",value)}
           />
           <View
             style={{

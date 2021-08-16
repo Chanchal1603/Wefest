@@ -6,6 +6,7 @@ import {directoryReducer} from './directoryReducer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {persistStore, persistReducer} from 'redux-persist';
 import {authReducer} from './authReducer';
+import {laderBoardReducer} from "./leaderBoardReducer"
 
 const persistConfig = {
   key: 'root',
@@ -19,4 +20,5 @@ export default combineReducers({
   galleryState: galleryReducer,
   announcementState: announcementReducer,
   directoryState: directoryReducer,
+  leaderBoardState:laderBoardReducer
 });

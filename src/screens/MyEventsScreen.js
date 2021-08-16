@@ -4,9 +4,48 @@ import AppHeader from '../components/AppHeader';
 import EventCard from '../components/EventCard';
 import PageLayout from '../containers/PageLayout';
 import {cardColors} from '../styles/components/eventCardStyles';
+import {useSelector, useDispatch} from 'react-redux';
+import {
+  eventRequest,
+  eventRequestFail,
+  eventRequestSuccess,
+} from '../redux/actions/eventActions';
+import {API_BASE_URL} from '../constants/ApiUrl';
+import Loader from '../components/Loader';
+import {setEventState} from './../redux/actions/eventActions';
 
 const MyEventsScreen = ({navigation}) => {
-  return (
+  const dispatch = useDispatch();
+  const {events, loading, isEdit} = useSelector(state => state.eventsState);
+  const {user} = useSelector(state => state.authState);
+
+
+  const getEventList = async () => {
+    dispatch(eventRequest());
+    try {
+      let response = await fetch(`${API_BASE_URL}/myevents.php`,{
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({"email":user.email}),
+      });
+      let json = await response.json();
+      dispatch(eventRequestSuccess(json));
+    } catch (error) {
+      console.error(error);
+      dispatch(eventRequestFail(json));
+    }
+  };
+
+  React.useEffect(() => {
+    getEventList();
+  }, []);
+
+  return loading ? (
+    <Loader />
+  ) : (
     <PageLayout>
       <View style={{flex: 1}}>
         <AppHeader title="My Events" />
@@ -17,12 +56,14 @@ const MyEventsScreen = ({navigation}) => {
             paddingVertical: 15,
           }}>
           <FlatList
-            data={[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]}
+            data={events}
             keyExtractor={item => item}
             numColumns={2}
             renderItem={({item, index}) => {
               return (
                 <EventCard
+                  date={item.date}
+                  name={item.event}
                   onPressEdit={() => {
                     navigation.navigate(eventEditRoute);
                   }}

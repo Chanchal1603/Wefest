@@ -20,6 +20,7 @@ import {
 } from '../../redux/actions/directoryActions';
 import {API_BASE_URL} from '../../constants/ApiUrl';
 import {useSelector, useDispatch} from 'react-redux';
+import {alert} from "../../utils"
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -90,6 +91,24 @@ export default AddNewDirectoryMemberModal = ({
     return false;
   };
 
+  const createFormData =  () => {
+
+    const data = new FormData();
+ if(imageFile !== null) 
+    data.append('sendimage', {
+      uri: imageFile.fileData.uri,
+      name: imageFile.fileData.fileName,
+      type: imageFile.fileData.type,
+    });
+
+    Object.keys(directoryForm).forEach((key) => {
+      data.append(key, directoryForm[key]);
+    });
+    return data;
+   
+  };
+
+
   const findIndexofDirectoryForm = () => {
     for(let i = 0; i < directory.length ;i ++) 
     if(directory[i].id == directoryForm.id) return i;
@@ -104,13 +123,39 @@ export default AddNewDirectoryMemberModal = ({
       try {
         let response = await fetch(`${API_BASE_URL}/updatedirectory.php`, {
           method: 'POST',
+          body: createFormData(),
           headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(directoryForm),
+            'Content-Type': 'multipart/form-data; ',
+          }
         });
         console.log("updtaed")
+        dispatch(directoryRequestSuccess(newDirectory));
+        onModalClose();
+      } catch (error) {
+        console.error(error);
+        alert("Error","Something went wrong");
+        dispatch(directoryRequestFail(newDirectory));
+        onModalClose();
+      }
+    }
+    else{
+      alert('Warning', 'Fields cannot be empty');
+    }
+  };
+
+  const addNewDirectory = async () => {
+    if (!checkValues() && imageFile !== null ) {
+      const newDirectory = [...directory, directoryForm];
+      dispatch(directoryRequest());
+
+      try {
+        let response = await fetch(`${API_BASE_URL}/directoryadmin.php`, {
+          method: 'POST',
+          body: createFormData(),
+          headers: {
+            'Content-Type': 'multipart/form-data; ',
+          }
+        });
         dispatch(directoryRequestSuccess(newDirectory));
         onModalClose();
       } catch (error) {
@@ -119,29 +164,8 @@ export default AddNewDirectoryMemberModal = ({
         onModalClose();
       }
     }
-  };
-
-  const addNewDirectory = async () => {
-    if (!checkValues()) {
-      const newDirectory = [...directory, directoryForm];
-      dispatch(directoryRequest());
-
-      try {
-        let response = await fetch(`${API_BASE_URL}/directoryadmin.php`, {
-          method: 'POST',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(directoryForm),
-        });
-        dispatch(directoryRequestSuccess(newDirectory));
-        onModalClose();
-      } catch (error) {
-        console.error(error);
-        dispatch(directoryRequestFail(newDirectory));
-        onModalClose();
-      }
+    else{
+      alert('Warning', 'Fields cannot be empty');
     }
   };
 

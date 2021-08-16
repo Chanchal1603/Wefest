@@ -22,6 +22,7 @@ import {API_BASE_URL} from '../../constants/ApiUrl';
 import {useSelector, useDispatch} from 'react-redux';
 import {setEventState} from './../../redux/actions/eventActions';
 import {updateEventService} from './../../services/eventService';
+import {checkEmptyField,alert} from "../../utils"
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -49,14 +50,10 @@ export default AddeventModal = ({
     });
   };
 
-  //return true if empty value..
-  const checkValues = () => {
-    for (let key in eventForm) if (eventForm[key] == '') return true;
-    return false;
-  };
+
 
   const addNewEvent = async () => {
-    if (!checkValues()) {
+    if (!checkEmptyField(eventForm)) {
       const newEvent = [...events, eventForm];
       dispatch(eventRequest());
 
@@ -76,40 +73,11 @@ export default AddeventModal = ({
         dispatch(eventRequestFail(newEvent));
         onModalClose();
       }
+    }else{
+      alert('Warning', 'Fields cannot be empty');
     }
   };
 
-  const chooseImage = () => {
-    let options = {
-      storageOptions: {
-        skipBackup: true,
-        path: 'images',
-      },
-    };
-
-    ImagePicker.launchImageLibrary(options, response => {
-      console.log('Response = ', response);
-
-      if (response.didCancel) {
-        console.log('User cancelled image picker');
-      } else if (response.error) {
-        console.log('ImagePicker Error: ', response.error);
-      } else if (response.customButton) {
-        console.log('User tapped custom button: ', response.customButton);
-        alert(response.customButton);
-      } else {
-        const source = {uri: response.uri};
-        console.log(
-          'response file-Uri',
-          JSON.stringify(response.assets[0].uri),
-        );
-        setImageFile({
-          fileData: response.assets[0],
-          fileUri: response.assets[0].uri,
-        });
-      }
-    });
-  };
 
   const updateEvent = async () => {
     const {data, error} = await updateEventService(eventForm);
@@ -119,7 +87,6 @@ export default AddeventModal = ({
         if (item.id === eventForm.id) {
           return {
             id: eventForm,
-            image: 'image.jpg',
             event: eventForm.eventName,
             details: eventForm.eventDetails,
             date: eventForm.eventDate,
@@ -155,26 +122,6 @@ export default AddeventModal = ({
         <Feather name="x" size={30} />
       </TouchableOpacity>
       <View style={[globalStyles.screenView, {alignItems: 'center'}]}>
-        {imageFile === null ? (
-          <TouchableOpacity
-            onPress={chooseImage}
-            style={{
-              height: 80,
-              width: 80,
-              borderRadius: 40,
-              backgroundColor: '#dd665c',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}>
-            <Feather name="camera" size={50} />
-          </TouchableOpacity>
-        ) : (
-          <Image
-            style={{height: 100, width: 100, borderRadius: 50}}
-            source={{uri: imageFile.fileUri}}
-          />
-        )}
-
         <View
           style={{
             flex: 1,
@@ -191,6 +138,12 @@ export default AddeventModal = ({
             labelText="Event Date"
             name="eventdate"
             onChangeText={value => handleInputChange('eventDate', value)}
+          />
+          <FormInput
+            value={eventForm.eventDetails}
+            labelText="Event Details"
+            name="eventdetails"
+            onChangeText={value => handleInputChange('eventDetails', value)}
           />
         </View>
 

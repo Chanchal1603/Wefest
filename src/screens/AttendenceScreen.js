@@ -11,19 +11,27 @@ import {
 import AppHeader from '../components/AppHeader';
 import PageLayout from '../containers/PageLayout';
 import {attendanceScreenStyles} from '../styles/screens/attendanceScreenStyles';
+import {API_BASE_URL} from '../constants/ApiUrl';
+import Loader from '../components/Loader';
+import {setEventState} from './../redux/actions/eventActions';
+import {useSelector, useDispatch} from 'react-redux';
+import {
+  eventRequest,
+  eventRequestFail,
+  eventRequestSuccess,
+} from '../redux/actions/eventActions';
+import {alert} from "../utils";
 
 const AttendanceCard = ({
-  name = 'NAME',
-  date = 'DATE',
-  day = 'DAY',
+  item,
   onPress,
 }) => (
   <View style={attendanceScreenStyles.attendenceCard}>
-    <Text style={attendanceScreenStyles.attendanceCardText}>{name}</Text>
-    <Text style={attendanceScreenStyles.attendanceCardText}>{date}</Text>
-    <Text style={attendanceScreenStyles.attendanceCardText}>{day}</Text>
+    <Text style={attendanceScreenStyles.attendanceCardText}>{item.event}</Text>
+    <Text style={attendanceScreenStyles.attendanceCardText}>{item.date}</Text>
+    {/* <Text style={attendanceScreenStyles.attendanceCardText}>{day}</Text> */}
     <TouchableOpacity
-      onPress={onPress}
+      onPress={()=>onPress(item)}
       style={{
         backgroundColor: 'grey',
         padding: 5,
@@ -43,18 +51,64 @@ const AttendanceCard = ({
 );
 
 function AttendenceScreen() {
-  return (
+
+  const dispatch = useDispatch();
+  const {events, loading, isEdit} = useSelector(state => state.eventsState);
+  const {user} = useSelector(state => state.authState);
+  const getEventList = async () => {
+    dispatch(eventRequest());
+    try {
+      let response = await fetch(`${API_BASE_URL}/eventuser.php`);
+      let json = await response.json();
+      dispatch(eventRequestSuccess(json));
+    } catch (error) {
+      console.error(error);
+      dispatch(eventRequestFail(json));
+    }
+  };
+
+  React.useEffect(() => {
+    getEventList();
+  }, []);
+
+  const markAttendence = async (item) => {
+    dispatch(eventRequest());
+    try {
+      let response = await fetch(`${API_BASE_URL}/markAttendance.php`,{
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email:user.email,
+          name:item.event,
+          Date:item.date
+        }),
+      });
+      let json = await response.json();
+      alert("Success","Attendece makred");
+      dispatch(eventRequestFail(json));
+    } catch (error) {
+      console.error(error);
+      alert("Error","Something went wrong");
+      dispatch(eventRequestFail(json));
+    }
+  }
+
+  return loading ? (
+    <Loader />
+  ):(
     <PageLayout>
       <View style={{flex: 1}}>
         <AppHeader title={'Attendance'} />
         <View style={{flex: 1, padding: 10}}>
           <FlatList
-            data={[0, 1, 2, 3, 4, 5, 6, 7, 8]}
-            showsVerticalScrollIndicator={false}
-            keyExtractor={item => item}
+            data={events}
+            keyExtractor={(item, index) => 'key' + index}
             numColumns={2}
-            renderItem={() => (
-              <AttendanceCard onPress={() => console.log('pressed')} />
+            renderItem={({item}) => (
+              <AttendanceCard item={item} onPress={markAttendence} />
             )}
           />
         </View>

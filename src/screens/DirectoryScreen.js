@@ -38,7 +38,7 @@ const DirectoryItem = ({item, isAdmin, onEditDetailsPress}) => {
     <View style={{flexDirection: 'row', alignItems: 'center'}}>
       <Image
         source={{
-          uri: 'https://previews.123rf.com/images/triken/triken1608/triken160800029/61320775-male-avatar-profile-picture-default-user-avatar-guest-avatar-simply-human-head-vector-illustration-i.jpg',
+          uri: item.imgpath,
         }}
         style={{
           width: 50,

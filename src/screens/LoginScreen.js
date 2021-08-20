@@ -1,5 +1,5 @@
 import React from 'react';
-import {Text, View, KeyboardAvoidingView} from 'react-native';
+import {Text, View, KeyboardAvoidingView, Modal} from 'react-native';
 import FormInput from '../components/FormComponents/FormInput';
 import {globalStyles} from '../styles/globalStyles';
 import GradientButton from '../components/Buttons/GradientButton';
@@ -13,6 +13,7 @@ import {API_BASE_URL} from "../constants/ApiUrl"
 import Loader from "../components/Loader";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {checkEmptyField,alert} from "../utils"
+import ForgotPasswordModal from './components/ForgotPasswordModal';
 
 const LoginScreen = ({navigation}) => {
   const dispatch = useDispatch();
@@ -21,6 +22,12 @@ const LoginScreen = ({navigation}) => {
     email: '',
     password: '',
   });
+
+  const [modalVisible, setModalVisible] = React.useState(false);
+  const changeModalVisiblity = () => {
+    console.log("pressed")
+    setModalVisible(!modalVisible);
+  };
 
   const handleInputChange = (key, value) => {
     setLoginForm({
@@ -66,6 +73,7 @@ const LoginScreen = ({navigation}) => {
 
   const onLoginSuccess = async (res) => {
 
+    console.log(res);
     await AsyncStorage.setItem("authState",JSON.stringify({
       isLoggedIn:true,
       user:loginForm,
@@ -101,9 +109,9 @@ const LoginScreen = ({navigation}) => {
             padding: 20,
           }}>
           <FormInput
-            labelText="Enter Username"
+            labelText="Enter Email"
             onChangeText={(value) => handleInputChange("email",value)}
-            name="username"
+            name="email"
             value={loginForm.username}
           />
           <FormInput
@@ -119,6 +127,7 @@ const LoginScreen = ({navigation}) => {
               borderBottomWidth: 1,
               borderBottomColor: 'black',
             }}
+            onPress={changeModalVisiblity}
             textStyle={human.headline}
           />
         </View>
@@ -136,6 +145,14 @@ const LoginScreen = ({navigation}) => {
           />
         </View>
       </View>
+      <Modal
+          animationType="slide"
+          visible={modalVisible}
+          onRequestClose={() => {
+            changeModalVisiblity();
+          }}>
+          <ForgotPasswordModal onModalClose={changeModalVisiblity} />
+        </Modal>
     </KeyboardAvoidingView>
   );
 };

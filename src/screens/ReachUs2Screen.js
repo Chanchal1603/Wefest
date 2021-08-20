@@ -16,7 +16,7 @@ import PageLayout from '../containers/PageLayout';
 import FormInput from '../components/FormComponents/FormInput';
 import Loader from '../components/Loader';
 import {API_BASE_URL} from '../constants/ApiUrl';
-import {alert, checkEmptyField} from '../utils';
+import {alert, checkEmptyField, toast} from '../utils';
 
 const Reachus2Routes = [
   {
@@ -50,12 +50,10 @@ const ReachUs2Screen = ({navigation, route}) => {
   };
 
   const [reachUs2Form, setReachUs2Form] = React.useState({
-    ...route.params,
     eventidea: '',
     contact: '',
     email: '',
-    feedback: 'feedback',
-    name1: 'rohant',
+    name: '',
   });
 
   const [loading, setLoading] = React.useState(false);
@@ -73,7 +71,7 @@ const ReachUs2Screen = ({navigation, route}) => {
     else {
       setLoading(true);
       try {
-        let response = await fetch(`${API_BASE_URL}/reachus1.php`, {
+        let response = await fetch(`${API_BASE_URL}/reachus2.php`, {
           method: 'POST',
           headers: {
             Accept: 'application/json',
@@ -82,10 +80,10 @@ const ReachUs2Screen = ({navigation, route}) => {
           body: JSON.stringify(reachUs2Form),
         });
 
-        let result = await response.json();
+        let result = await response.text();
         console.log(result);
         setLoading(false);
-        alert('Success', 'Information submitted');
+        toast('Event Idea submitted');
       } catch (error) {
         console.error(error);
         setLoading(false);
@@ -161,6 +159,11 @@ const ReachUs2Screen = ({navigation, route}) => {
               labelText="Mail Id"
               name="mail id"
               onChangeText={value => handleInputChange('email', value)}
+            />
+            <FormInput
+              labelText="Name"
+              name="name"
+              onChangeText={value => handleInputChange('name', value)}
             />
             <FormInput
               labelText="Contact No."

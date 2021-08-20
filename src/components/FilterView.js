@@ -42,19 +42,6 @@ const FilterView = ({
         />
       )}
 
-      <View>
-        <IconButton
-          icon={
-            <AntDesignIcon
-              name="filter"
-              style={{
-                fontSize: 32,
-                color: Colors.secondary,
-              }}
-            />
-          }
-        />
-      </View>
     </View>
   );
 };

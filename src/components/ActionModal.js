@@ -9,7 +9,7 @@ const deviceHeight = Dimensions.get('window').height;
 const deviceWidth = Dimensions.get('window').width;
 
 const ActionModal = ({slideInTop, closeModal}) => {
-  const {isAdmin} = useSelector(state => state.authState);
+  const {isAdmin, user} = useSelector(state => state.authState);
   const navigation = useNavigation();
 
   return (
@@ -18,7 +18,7 @@ const ActionModal = ({slideInTop, closeModal}) => {
         styles.modal,
         {paddingBottom: 15, transform: [{translateY: slideInTop}]},
       ]}>
-      {isAdmin ? (
+      {isAdmin || user ? (
         <DashboardScreen
           navigation={navigation}
           isDrawer={true}

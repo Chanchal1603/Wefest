@@ -24,7 +24,7 @@ import * as ImagePicker from 'react-native-image-picker';
 import {API_BASE_URL} from '../constants/ApiUrl';
 import {setAuthState} from '../redux/actions/authActions';
 import Loader from '../components/Loader';
-import {checkEmptyField, alert} from '../utils';
+import {checkEmptyField, alert, toast} from '../utils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
@@ -127,12 +127,12 @@ const RegisterScreen = ({navigation}) => {
         },
       });
       let result = await response.json();
-    console.log(result);
+
     if (result[0].successful) {
       onRegisterSuccess();
     } else {
       setLoading(false);
-      alert("Error","Something went wrong");
+      alert("Error",result[0].mssg);
     }
     } catch (error) {
       console.error(error);
@@ -165,8 +165,12 @@ const RegisterScreen = ({navigation}) => {
     );
 
     setLoading(false);
+    toast("Successfull Registration");
     navigation.navigate(homeScreenRoute);
+
   };
+
+  
 
   return loading ? (
     <Loader />

@@ -1,5 +1,5 @@
 import React from 'react';
-import {FlatList, View, Dimensions} from 'react-native';
+import {FlatList, View, Dimensions, Text, TouchableOpacity} from 'react-native';
 import {dashboardScreenStyles as styles} from '../styles/screens/dashboardScreenStyles';
 import {globalStyles} from '../styles/globalStyles';
 import ContainedButton from '../components/Buttons/ContainedButton';
@@ -10,6 +10,7 @@ import {dashboardRoutes} from './dashboardRoutes';
 import Icon from 'react-native-vector-icons/Entypo';
 import {useDispatch} from 'react-redux';
 import {setAuthState} from './../redux/actions/authActions';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const DashboardScreen = ({navigation, isDrawer = false, handleClose}) => {
   const shadowOpt = {
@@ -43,17 +44,51 @@ const DashboardScreen = ({navigation, isDrawer = false, handleClose}) => {
     }
   };
 
+  const logoutPress = async () => {
+    await AsyncStorage.setItem(
+      'authState',
+      JSON.stringify({
+        isLoggedIn: false,
+        user: null,
+        isAdmin: false,
+      }),
+    );
+    dispatch(
+      setAuthState({
+        isAdmin: false,
+        user: null,
+      }),
+    );
+  };
+
   return (
     <View style={globalStyles.screenView}>
-      <NavigationHeader
+      <View
         style={{
-          paddingTop: 0,
-          marginTop: -5,
-        }}
-        navigation={navigation}
-        isDrawer={isDrawer}
-        handleClose={handleClose}
-      />
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          paddingRight: 20,
+        }}>
+        <NavigationHeader
+          style={{
+            paddingTop: 0,
+            marginTop: -5,
+          }}
+          navigation={navigation}
+          isDrawer={isDrawer}
+          handleClose={handleClose}
+        />
+        <TouchableOpacity onPress={logoutPress}>
+          <Text
+            style={{
+              fontSize: 15,
+            }}>
+            {' '}
+            Logout
+          </Text>
+        </TouchableOpacity>
+      </View>
       <View style={styles.container}>
         <FlatList
           showsVerticalScrollIndicator={false}

@@ -1,5 +1,5 @@
 import React from 'react';
-import {FlatList, View, Text, Image} from 'react-native';
+import {FlatList, View, Text, Image, ActivityIndicator} from 'react-native';
 import CheckBox from 'react-native-check-box';
 import AppHeader from '../components/AppHeader';
 import ContainedButton from '../components/Buttons/ContainedButton';
@@ -58,6 +58,7 @@ const GalleryItem = ({item, isEdit, markImage}) => {
       <Image
         style={{height: '100%', width: '100%', borderRadius: 10}}
         source={{uri: `${API_BASE_URL}/upload/${item.image}`}}
+        onLoad={()=><ActivityIndicator size="small" color="#FFF" />}
       />
       {showCheckBox()}
     </View>

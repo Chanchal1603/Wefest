@@ -1,11 +1,7 @@
 import 'react-native-gesture-handler';
 import * as React from 'react';
-import {Provider} from 'react-redux';
 import {NavigationContainer} from '@react-navigation/native';
 import UserStackScreen from './navigation/UserStack';
-import AdminStackScreen from './navigation/AdminStack';
-import {store, persistor} from './redux/store';
-import {PersistGate} from 'redux-persist/integration/react';
 import SplashScreen from './screens/SplashScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {setAuthState} from './redux/actions/authActions';
@@ -31,18 +27,14 @@ const App = () => {
   const {user} = useSelector(state => state.authState);
 
   const getUserDetails = async () => {
-    // await AsyncStorage.setItem('authState',JSON.stringify({
-    //   isLoggedIn:false,
-    //   user:null,
-    //   isAdmin:false
-    // }))
+
     try {
       let result = await AsyncStorage.getItem('authState');
       result = await JSON.parse(result);
       if (result.isLoggedIn) {
         dispatch(
           setAuthState({
-            isAdmin: true,
+            isAdmin: result.isAdmin,
             user: result.user,
           }),
         );
@@ -72,7 +64,7 @@ const App = () => {
   }, []);
 
   if (showSplashScreen) return <SplashScreen />;
-  if (isLoggedIn) return <RootUserHomeStack />;
+  if (isLoggedIn && user) return <RootUserHomeStack />;
   return <RootApp />;
 };
 

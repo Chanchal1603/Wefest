@@ -8,19 +8,14 @@ import {
   TouchableOpacity,
   Image,
 } from 'react-native';
-import {dashboardScreenStyles as styles} from 'styles/screens/dashboardScreenStyles';
 import {globalStyles} from '../styles/globalStyles';
-import ContainedButton from '../components/Buttons/ContainedButton';
-import {systemWeights, human} from 'react-native-typography';
-import NavigationHeader from '../components/NavigationHeader';
-import {BoxShadow} from 'react-native-shadow';
-// import {ReachusRoutes} from './ReachusRoutes';
 import AppHeader from '../components/AppHeader';
-import {ReachUs2ScreenRoute} from '../navigation/screenNames';
-import ReachUs2Screen from './ReachUs2Screen';
 import PageLayout from './../containers/PageLayout';
 import FormInput from '../components/FormComponents/FormInput';
-import {alert, checkEmptyField} from "../utils";
+import Loader from '../components/Loader';
+import {API_BASE_URL} from '../constants/ApiUrl';
+import {alert, checkEmptyField,toast} from '../utils';
+
 
 const ReachUs1Screen = ({navigation}) => {
   const shadowOpt = {
@@ -34,10 +29,11 @@ const ReachUs1Screen = ({navigation}) => {
     y: -1,
     style: {marginVertical: 7, borderRadius: 10},
   };
-
+  const [loading, setLoading] = React.useState(false);
   const [reachUs1Form, setReachUs1Form] = React.useState({
     name: '',
-    eventname:''
+    eventname:'',
+    feedback:''
   });
 
   const handleInputChange = (key, value) => {
@@ -47,16 +43,37 @@ const ReachUs1Screen = ({navigation}) => {
     });
   };
   
-  const navigateToNextScreen = () => {
+  const onSubmitPress = async () => {
 
-    if(checkEmptyField(reachUs1Form)){
-      alert('Warning','Fields cannot be empty');
-      return
+    if (checkEmptyField(reachUs1Form))
+    alert('Warning', 'Fields cannot be empty');
+  else {
+    setLoading(true);
+    try {
+      let response = await fetch(`${API_BASE_URL}/reachus1.php`, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(reachUs1Form),
+      });
+
+      let result = await response.json();
+      console.log(result);
+      setLoading(false);
+      toast('Feedback submitted');
+    } catch (error) {
+      console.error(error);
+      setLoading(false);
+      alert('Error', 'something went wrong');
     }
-    navigation.push(ReachUs2ScreenRoute,reachUs1Form);
+  }
   }
 
-  return (
+  return loading ? (
+    <Loader />
+  ) : (
     <PageLayout>
       <ScrollView style={globalStyles.rootView}>
         <AppHeader title="Reach Us" />
@@ -88,11 +105,17 @@ const ReachUs1Screen = ({navigation}) => {
             name="eventname"
             onChangeText={value => handleInputChange('eventname', value)}
           />
+          <FormInput
+            labelText="Event Feedback"
+            name="eventFeedback"
+            multiline={true}
+            onChangeText={value => handleInputChange('feedback', value)}
+          />
         </View>
 
         <View
           style={{
-            height:Dimensions.get('screen').height*0.45 ,
+            height:Dimensions.get('screen').height*0.35 ,
             alignItems: 'center',
             justifyContent: 'space-between',
           }}>
@@ -105,8 +128,8 @@ const ReachUs1Screen = ({navigation}) => {
             }} />
           <TouchableOpacity
             style={{alignItems: 'flex-end', width: '100%', padding: 15}}
-            onPress={navigateToNextScreen}>
-            <Text style={{borderBottomWidth: 1, fontSize: 18}}>Next</Text>
+            onPress={onSubmitPress}>
+            <Text style={{borderBottomWidth: 1, fontSize: 18}}>Submit</Text>
           </TouchableOpacity>
           <Image
             source={require('../assets/bottom-img.jpg')}

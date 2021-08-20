@@ -11,6 +11,7 @@ import {
   LeaderBoardHowToEarnScreenRoute,
   LeaderBoardLeaderShipScreenRoute,
   homeScreenRoute,
+  leaderpointsRoute
 } from '../navigation/screenNames';
 
 export const dashboardRoutes = [
@@ -43,7 +44,7 @@ export const dashboardRoutes = [
     routeName: announcementScreenRoute,
   },
   {
-    screenName: 'React Out',
+    screenName: 'Reach Out',
     routeName: ReachUs1ScreenRoute,
     child: [
       {
@@ -61,9 +62,10 @@ export const dashboardRoutes = [
     screenName: 'Leaderboards',
     routeName: LeaderBoardHomeScreenRoute,
     child: [
+
       {
         screenName: 'Your Point',
-        routeName: LeaderBoardHomeScreenRoute,
+        routeName: leaderpointsRoute,
       },
       {
         screenName: 'How To Earn',

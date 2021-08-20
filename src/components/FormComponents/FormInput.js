@@ -5,6 +5,7 @@ import {inputFormStyles} from '../../styles/components/formStyles';
 const FormInput = ({
   name,
   numeric,
+  multiline = false,
   labelText = 'Input Label',
   placeHolder = 'Enter the placeholder',
   value = '',
@@ -18,9 +19,10 @@ const FormInput = ({
       <Text style={[inputFormStyles.inputLabel, labelStyle]}>{labelText}</Text>
       {value ? (
         <TextInput
-          placeholder={placeHolder}
+          placeholder={labelText}
           placeholderTextColor="grey"
           value={value}
+          multiline={multiline}
           keyboardType={ numeric ?  "phone-pad" : "default"}
           numeric={numeric}
           onChangeText={onChangeText}
@@ -29,8 +31,9 @@ const FormInput = ({
         />
       ) : (
         <TextInput
-          placeholder={placeHolder}
+         placeholder={labelText}
           placeholderTextColor="grey"
+          multiline={multiline}
           onChangeText={onChangeText}
           keyboardType={ numeric ?  "phone-pad" : "default"}
           style={[inputFormStyles.inputStyle, inputStyle]}
